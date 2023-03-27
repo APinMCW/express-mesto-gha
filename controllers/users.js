@@ -3,9 +3,9 @@ const User = require("../models/user");
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
-    res.send(users);
+    res.send({users});
   } catch (err) {
-    next(err);
+    res.status(500).send({ message: "Ошибка по умолчанию." });
   }
 };
 
@@ -13,14 +13,14 @@ const getUserById = async (req, res, next) => {
   const { id } = req.params;
   try {
     const user = await User.find((item) => item._id === id);
-    res.send(user);
+    res.send({user});
   } catch (err) {
     if (err.name === "Not Found") {
       res
         .status(404)
         .send({ message: `Пользователь по указанному ${id} не найден` });
     } else {
-      next(err);
+      res.status(500).send({ message: "Ошибка по умолчанию." });
     }
   }
 };
@@ -29,14 +29,14 @@ const createUser = async (req, res, next) => {
   const { name, about, avatar } = req.body;
   try {
     const user = await User.create({ name, about, avatar });
-    res.status(200).send(user);
+    res.status(200).send({user});
   } catch (err) {
     if (err.name === "ValidationError") {
       res.status(400).send({
         message: `Переданы некорректные данные при создании пользователя ${err}`,
       });
     } else {
-      next(err);
+      res.status(500).send({ message: "Ошибка по умолчанию." });
     }
   }
 };
@@ -49,7 +49,7 @@ const updProfile = async (req, res, next) => {
       { name: name, about: about },
       { new: true, runValidators: true, upsert: true }
     );
-    res.status(200).send(user);
+    res.status(200).send({user});
   } catch (err) {
     if (err.name === "ValidationError") {
       res.status(400).send({
@@ -61,7 +61,7 @@ const updProfile = async (req, res, next) => {
         .status(404)
         .send({ message: `Пользователь по указанному ${id} не найден` });
     } else {
-      next(err);
+      res.status(500).send({ message: "Ошибка по умолчанию." });
     }
   }
 };
@@ -70,7 +70,7 @@ const updAvatar = async (req, res, next) => {
   const { avatar } = req.body;
   try {
     const user = await User.findByIdAndUpdate(req.user._id, { avatar: avatar });
-    res.status(200).send(user.avatar);
+    res.status(200).send({avatar});
   } catch (err) {
     if (err.name === "ValidationError") {
       res.status(400).send({
@@ -82,7 +82,7 @@ const updAvatar = async (req, res, next) => {
         .status(404)
         .send({ message: `Пользователь по указанному ${id} не найден` });
     } else {
-      next(err);
+      res.status(500).send({ message: "Ошибка по умолчанию." });
     }
   }
 };

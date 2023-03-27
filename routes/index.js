@@ -6,7 +6,7 @@ const cardRoutes = require("./cards");
 router.use("/cards", cardRoutes);
 router.use("/users", userRoutes);
 router.use((req, res) => {
-  res.status(500).send({ error: "Ошибка по умолчанию." });
+  res.status(404).send({ message: "Страница не найдена." });
 });
 
 module.exports = router;
