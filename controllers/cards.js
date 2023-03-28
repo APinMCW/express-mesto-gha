@@ -1,11 +1,13 @@
-const Card = require("../models/card");
+/* eslint-disable no-unused-vars */
+const Card = require('../models/card');
+const statusCode = require('../const/statusCode');
 
 const getcards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
-    res.send({cards});
+    res.status(statusCode.OK).send({ cards });
   } catch (err) {
-    res.status(500).send({ message: "Ошибка по умолчанию." });
+    res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
   }
 };
 
@@ -13,14 +15,14 @@ const delCard = async (req, res, next) => {
   const { id } = req.user._id;
   try {
     const card = await Card.findByIdAndRemove(id);
-    res.send({card});
+    res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (err.name === "Not Found") {
+    if (err.name === null) {
       res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .send({ message: `Карточка с указанным ${id} не найдена.` });
     } else {
-      res.status(500).send({ message: "Ошибка по умолчанию." });
+      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     }
   }
 };
@@ -30,64 +32,67 @@ const createcard = async (req, res, next) => {
   const owner = req.user._id;
   try {
     const card = await Card.create({ name, link, owner });
-    res.status(200).send({card});
+    res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({
+    if (err.name === 'ValidationError') {
+      res.status(statusCode.BAD_REQUSET).send({
         message: `Переданы некорректные данные при создании карточки. ${err}`,
       });
     } else {
-      res.status(500).send({ message: "Ошибка по умолчанию." });
+      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     }
   }
 };
 
 const likeCard = async (req, res, next) => {
+  const { cardId } = req.params.cardId;
   try {
     const card = await Card.findByIdAndUpdate(
-      req.params.cardId,
+      cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
     );
-    res.send({card});
+    res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({
+    if (err.name === 'ValidationError') {
+      res.status(statusCode.BAD_REQUSET).send({
         message: `Переданы некорректные данные для постановки лайка. ${err}`,
       });
     }
-    if (err.name === "Not Found") {
+    if (err.name === null) {
       res
-        .status(404)
-        .send({ message: `Передан несуществующий ${id} карточки.` });
+        .status(statusCode.NOT_FOUND)
+        .send({ message: `Передан несуществующий ${cardId} карточки.` });
     } else {
-      res.status(500).send({ message: "Ошибка по умолчанию." });
+      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     }
   }
 };
 
 const dislikeCard = async (req, res, next) => {
+  const { cardId } = req.params.cardId;
   try {
     const card = await Card.findByIdAndUpdate(
-      req.params.cardId,
+      cardId,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
-    res.send({card});
+    res.send({ card });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({
+    if (err.name === 'ValidationError') {
+      res.status(statusCode.BAD_REQUSET).send({
         message: `Переданы некорректные данные для снятии лайка. ${err}`,
       });
     }
-    if (err.name === "Not Found") {
+    if (err.name === null) {
       res
-        .status(404)
-        .send({ message: `Передан несуществующий ${id} карточки.` });
+        .status(statusCode.NOT_FOUND)
+        .send({ message: `Передан несуществующий ${cardId} карточки.` });
     } else {
-      res.status(500).send({ message: "Ошибка по умолчанию." });
+      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     }
   }
 };
 
-module.exports = { getcards, delCard, createcard, likeCard, dislikeCard };
+module.exports = {
+  getcards, delCard, createcard, likeCard, dislikeCard,
+};

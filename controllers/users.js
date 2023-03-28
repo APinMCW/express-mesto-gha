@@ -1,26 +1,32 @@
-const User = require("../models/user");
+/* eslint-disable no-unused-vars */
+const User = require('../models/user');
+const statusCode = require('../const/statusCode');
 
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
-    res.send({users});
+    res.status(statusCode.OK).send({ users });
   } catch (err) {
-    res.status(500).send({ message: "Ошибка по умолчанию." });
+    res
+      .status(statusCode.SERVER_ERROR)
+      .send({ message: 'Ошибка по умолчанию.' });
   }
 };
 
 const getUserById = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const user = await User.find((item) => item._id === id);
-    res.send({user});
+    const user = await User.findOne((item) => item._id === id);
+    res.status(statusCode.OK).send({ user });
   } catch (err) {
-    if (err.name === "Not Found") {
+    if (err.name === null) {
       res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .send({ message: `Пользователь по указанному ${id} не найден` });
     } else {
-      res.status(500).send({ message: "Ошибка по умолчанию." });
+      res
+        .status(statusCode.SERVER_ERROR)
+        .send({ message: 'Ошибка по умолчанию.' });
     }
   }
 };
@@ -29,62 +35,77 @@ const createUser = async (req, res, next) => {
   const { name, about, avatar } = req.body;
   try {
     const user = await User.create({ name, about, avatar });
-    res.status(200).send({user});
+    res.status(statusCode.OK).send({ user });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({
+    if (err.name === 'ValidationError') {
+      res.status(statusCode.NOT_FOUND).send({
         message: `Переданы некорректные данные при создании пользователя ${err}`,
       });
     } else {
-      res.status(500).send({ message: "Ошибка по умолчанию." });
+      res
+        .status(statusCode.SERVER_ERROR)
+        .send({ message: 'Ошибка по умолчанию.' });
     }
   }
 };
 
 const updProfile = async (req, res, next) => {
   const { name, about } = req.body;
+  const { id } = req.user._id;
+
   try {
     const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { name: name, about: about },
-      { new: true, runValidators: true, upsert: true }
+      id,
+      { name, about },
+      { runValidators: true, upsert: true },
     );
-    res.status(200).send({user});
+    res.status(statusCode.OK).send({ user });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({
+    if (err.name === 'ValidationError') {
+      res.status(statusCode.NOT_FOUND).send({
         message: `Переданы некорректные данные при обновлении профиля. ${err}`,
       });
     }
-    if (err.name === "Not Found") {
+    if (err.name === null) {
       res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .send({ message: `Пользователь по указанному ${id} не найден` });
     } else {
-      res.status(500).send({ message: "Ошибка по умолчанию." });
+      res
+        .status(statusCode.SERVER_ERROR)
+        .send({ message: 'Ошибка по умолчанию.' });
     }
   }
 };
 
 const updAvatar = async (req, res, next) => {
   const { avatar } = req.body;
+  const { id } = req.user._id;
   try {
-    const user = await User.findByIdAndUpdate(req.user._id, { avatar: avatar });
-    res.status(200).send({avatar});
+    const user = await User.findByIdAndUpdate(id, { avatar });
+    res.status(statusCode.OK).send({ avatar });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      res.status(400).send({
+    if (err.name === 'ValidationError') {
+      res.status(statusCode.NOT_FOUND).send({
         message: `Переданы некорректные данные при обновлении аватара. ${err}`,
       });
     }
-    if (err.name === "Not Found") {
+    if (err.name === null) {
       res
-        .status(404)
+        .status(statusCode.NOT_FOUND)
         .send({ message: `Пользователь по указанному ${id} не найден` });
     } else {
-      res.status(500).send({ message: "Ошибка по умолчанию." });
+      res
+        .status(statusCode.SERVER_ERROR)
+        .send({ message: 'Ошибка по умолчанию.' });
     }
   }
 };
 
-module.exports = { getUsers, getUserById, createUser, updProfile, updAvatar };
+module.exports = {
+  getUsers,
+  getUserById,
+  createUser,
+  updProfile,
+  updAvatar,
+};

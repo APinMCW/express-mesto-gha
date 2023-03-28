@@ -1,12 +1,13 @@
-const router = require("express").Router();
+const router = require('express').Router();
+const statusCode = require('../const/statusCode');
 
-const userRoutes = require("./users");
-const cardRoutes = require("./cards");
+const userRoutes = require('./users');
+const cardRoutes = require('./cards');
 
-router.use("/cards", cardRoutes);
-router.use("/users", userRoutes);
+router.use('/cards', cardRoutes);
+router.use('/users', userRoutes);
 router.use((req, res) => {
-  res.status(404).send({ message: "Страница не найдена." });
+  res.status(statusCode.NOT_FOUND).send({ message: 'Страница не найдена.' });
 });
 
 module.exports = router;
