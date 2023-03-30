@@ -22,7 +22,7 @@ const delCard = async (req, res, next) => {
     }
     res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (cardId.length === 24) {
+    if (cardId.length !== 24) {
       res
         .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
@@ -63,7 +63,7 @@ const likeCard = async (req, res, next) => {
     }
     res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (cardId.length === 24) {
+    if (cardId.length !== 24) {
       res
         .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
