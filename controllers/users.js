@@ -16,7 +16,7 @@ const getUsers = async (req, res, next) => {
 const getUserById = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const user = await User.findOne(id);
+    const user = await User.findById(id);
     if (user === null) {
       res.status(statusCode.NOT_FOUND).send({ message: `Пользователь по указанному ${id} не найден` });
     }
@@ -41,7 +41,7 @@ const createUser = async (req, res, next) => {
     res.status(statusCode.OK).send({ user });
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(statusCode.NOT_FOUND).send({
+      res.status(statusCode.BAD_REQUSET).send({
         message: `Переданы некорректные данные при создании пользователя ${err}`,
       });
     } else {
@@ -65,7 +65,7 @@ const updProfile = async (req, res, next) => {
     res.status(statusCode.OK).send({ user });
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(statusCode.NOT_FOUND).send({
+      res.status(statusCode.BAD_REQUSET).send({
         message: `Переданы некорректные данные при обновлении профиля. ${err}`,
       });
     }
@@ -89,7 +89,7 @@ const updAvatar = async (req, res, next) => {
     res.status(statusCode.OK).send({ avatar });
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(statusCode.NOT_FOUND).send({
+      res.status(statusCode.BAD_REQUSET).send({
         message: `Переданы некорректные данные при обновлении аватара. ${err}`,
       });
     }
