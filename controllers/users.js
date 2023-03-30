@@ -54,7 +54,7 @@ const createUser = async (req, res, next) => {
 
 const updProfile = async (req, res, next) => {
   const { name, about } = req.body;
-  const { id } = req.user._id;
+  const id = req.user._id;
 
   try {
     const user = await User.findByIdAndUpdate(
@@ -83,7 +83,7 @@ const updProfile = async (req, res, next) => {
 
 const updAvatar = async (req, res, next) => {
   const { avatar } = req.body;
-  const { id } = req.user._id;
+  const id = req.user._id;
   try {
     const user = await User.findByIdAndUpdate(id, { avatar });
     res.status(statusCode.OK).send({ avatar });

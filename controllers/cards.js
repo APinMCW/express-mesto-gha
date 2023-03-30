@@ -12,7 +12,7 @@ const getcards = async (req, res, next) => {
 };
 
 const delCard = async (req, res, next) => {
-  const { id } = req.user._id;
+  const id = req.user._id;
   try {
     const card = await Card.findByIdAndRemove(id);
     res.status(statusCode.OK).send({ card });
@@ -45,7 +45,7 @@ const createcard = async (req, res, next) => {
 };
 
 const likeCard = async (req, res, next) => {
-  const { cardId } = req.params.cardId;
+  const { cardId } = req.params;
   try {
     const card = await Card.findByIdAndUpdate(
       cardId,
@@ -69,7 +69,7 @@ const likeCard = async (req, res, next) => {
 };
 
 const dislikeCard = async (req, res, next) => {
-  const { cardId } = req.params.cardId;
+  const { cardId } = req.params;
   try {
     const card = await Card.findByIdAndUpdate(
       cardId,
