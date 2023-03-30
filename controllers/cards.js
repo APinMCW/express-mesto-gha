@@ -88,7 +88,7 @@ const dislikeCard = async (req, res, next) => {
     }
     res.send({ card });
   } catch (err) {
-    if (err.name === null) {
+    if (cardId.length !== 24) {
       res
         .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
