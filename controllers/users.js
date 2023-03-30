@@ -16,13 +16,16 @@ const getUsers = async (req, res, next) => {
 const getUserById = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const user = await User.findOne((item) => item._id === id);
+    const user = await User.findOne(id);
+    if (user === null) {
+      res.status(statusCode.NOT_FOUND).send({ message: `Пользователь по указанному ${id} не найден` });
+    }
     res.status(statusCode.OK).send({ user });
   } catch (err) {
-    if (err.name === null) {
+    if (id.length !== 24) {
       res
-        .status(statusCode.NOT_FOUND)
-        .send({ message: `Пользователь по указанному ${id} не найден` });
+        .status(statusCode.BAD_REQUSET)
+        .send({ message: 'Указан некорректный id' });
     } else {
       res
         .status(statusCode.SERVER_ERROR)
@@ -57,7 +60,7 @@ const updProfile = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(
       id,
       { name, about },
-      { runValidators: true, upsert: true },
+      { runValidators: true, new: true },
     );
     res.status(statusCode.OK).send({ user });
   } catch (err) {
