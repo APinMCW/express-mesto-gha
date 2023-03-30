@@ -17,14 +17,14 @@ const delCard = async (req, res, next) => {
     const card = await Card.findByIdAndRemove(cardId);
     if (card === null) {
       res
-        .status(statusCode.BAD_REQUSET)
+        .status(statusCode.NOT_FOUND)
         .send({ message: `Карточка с указанным ${cardId} не найдена.` });
     }
     res.status(statusCode.OK).send({ card });
   } catch (err) {
     if (cardId.length === 24) {
       res
-        .status(statusCode.NOT_FOUND)
+        .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
     } else {
       res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
@@ -65,7 +65,7 @@ const likeCard = async (req, res, next) => {
   } catch (err) {
     if (cardId.length === 24) {
       res
-        .status(statusCode.NOT_FOUND)
+        .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
     } else {
       res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
@@ -82,7 +82,7 @@ const dislikeCard = async (req, res, next) => {
       { new: true },
     );
     if (card === null) {
-      res.status(statusCode.BAD_REQUSET).send({
+      res.status(statusCode.NOT_FOUND).send({
         message: 'Переданы некорректные данные для снятии лайка.',
       });
     }
@@ -90,7 +90,7 @@ const dislikeCard = async (req, res, next) => {
   } catch (err) {
     if (err.name === null) {
       res
-        .status(statusCode.NOT_FOUND)
+        .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
     } else {
       res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
