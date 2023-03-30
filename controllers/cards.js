@@ -12,18 +12,17 @@ const getcards = async (req, res, next) => {
 };
 
 const delCard = async (req, res, next) => {
-  const id = req.user._id;
+  const { cardId } = req.params;
   try {
-    const card = await Card.findByIdAndRemove(id);
+    const card = await Card.findByIdAndRemove(cardId);
+    if (card === null) {
+      res
+        .status(statusCode.BAD_REQUSET)
+        .send({ message: `Карточка с указанным ${cardId} не найдена.` });
+    }
     res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (err.name === null) {
-      res
-        .status(statusCode.NOT_FOUND)
-        .send({ message: `Карточка с указанным ${id} не найдена.` });
-    } else {
-      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    }
+    res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
   }
 };
 
@@ -51,13 +50,13 @@ const likeCard = async (req, res, next) => {
       cardId,
       { $addToSet: { likes: req.user._id } },
     );
-    res.status(statusCode.OK).send({ card });
-  } catch (err) {
-    if (err.name === 'ValidationError') {
+    if (card === null) {
       res.status(statusCode.BAD_REQUSET).send({
-        message: `Переданы некорректные данные для постановки лайка. ${err}`,
+        message: 'Переданы некорректные данные для постановки лайка. ',
       });
     }
+    res.status(statusCode.OK).send({ card });
+  } catch (err) {
     if (err.name === null) {
       res
         .status(statusCode.NOT_FOUND)
@@ -76,13 +75,13 @@ const dislikeCard = async (req, res, next) => {
       { $pull: { likes: req.user._id } },
       { new: true },
     );
-    res.send({ card });
-  } catch (err) {
-    if (err.name === 'ValidationError') {
+    if (card === null) {
       res.status(statusCode.BAD_REQUSET).send({
-        message: `Переданы некорректные данные для снятии лайка. ${err}`,
+        message: 'Переданы некорректные данные для снятии лайка.',
       });
     }
+    res.send({ card });
+  } catch (err) {
     if (err.name === null) {
       res
         .status(statusCode.NOT_FOUND)
