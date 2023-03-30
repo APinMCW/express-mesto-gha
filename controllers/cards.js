@@ -22,7 +22,13 @@ const delCard = async (req, res, next) => {
     }
     res.status(statusCode.OK).send({ card });
   } catch (err) {
-    res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+    if (cardId.length === 24) {
+      res
+        .status(statusCode.NOT_FOUND)
+        .send({ message: `Передан несуществующий ${cardId} карточки.` });
+    } else {
+      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+    }
   }
 };
 
@@ -51,13 +57,13 @@ const likeCard = async (req, res, next) => {
       { $addToSet: { likes: req.user._id } },
     );
     if (card === null) {
-      res.status(statusCode.BAD_REQUSET).send({
+      res.status(statusCode.NOT_FOUND).send({
         message: 'Переданы некорректные данные для постановки лайка. ',
       });
     }
     res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (err.name === null) {
+    if (cardId.length === 24) {
       res
         .status(statusCode.NOT_FOUND)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
