@@ -67,6 +67,7 @@ const updProfile = async (req, res, next) => {
       res
         .status(statusCode.NOT_FOUND)
         .send({ message: `Пользователь по указанному ${id} не найден` });
+      return;
     }
     res.status(statusCode.OK).send({ user });
   } catch (err) {
@@ -91,6 +92,7 @@ const updAvatar = async (req, res, next) => {
       res
         .status(statusCode.NOT_FOUND)
         .send({ message: `Пользователь по указанному ${id} не найден` });
+      return;
     }
     res.status(statusCode.OK).send({ avatar });
   } catch (err) {
