@@ -19,10 +19,11 @@ const delCard = async (req, res, next) => {
       res
         .status(statusCode.NOT_FOUND)
         .send({ message: `Карточка с указанным ${cardId} не найдена.` });
+      return;
     }
     res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (cardId.length !== 24) {
+    if (err.name === 'CastError') {
       res
         .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
@@ -60,10 +61,11 @@ const likeCard = async (req, res, next) => {
       res.status(statusCode.NOT_FOUND).send({
         message: 'Переданы некорректные данные для постановки лайка. ',
       });
+      return;
     }
     res.status(statusCode.OK).send({ card });
   } catch (err) {
-    if (cardId.length !== 24) {
+    if (err.name === 'CastError') {
       res
         .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
@@ -85,10 +87,11 @@ const dislikeCard = async (req, res, next) => {
       res.status(statusCode.NOT_FOUND).send({
         message: 'Переданы некорректные данные для снятии лайка.',
       });
+      return;
     }
     res.send({ card });
   } catch (err) {
-    if (cardId.length !== 24) {
+    if (err.name === 'CastError') {
       res
         .status(statusCode.BAD_REQUSET)
         .send({ message: `Передан несуществующий ${cardId} карточки.` });
