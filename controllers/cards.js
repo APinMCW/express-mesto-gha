@@ -1,102 +1,103 @@
 /* eslint-disable no-unused-vars */
 const Card = require('../models/card');
 const statusCode = require('../const/statusCode');
+const { BadRequestError } = require('../errors/bad-request-err');
+const { NotFoundError } = require('../errors/not-found-err');
 
-const getcards = async (req, res, next) => {
-  try {
-    const cards = await Card.find({});
+// GET /cards/
+const getcards = (req, res, next) => {
+  Card.find({}).then((cards) => {
     res.status(statusCode.OK).send({ cards });
-  } catch (err) {
-    res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-  }
+  }).catch(next);
 };
 
-const delCard = async (req, res, next) => {
+// DELETE /cards/:cardId
+const delCard = (req, res, next) => {
   const { cardId } = req.params;
-  try {
-    const card = await Card.findByIdAndRemove(cardId);
-    if (card === null) {
-      res
-        .status(statusCode.NOT_FOUND)
-        .send({ message: `Карточка с указанным ${cardId} не найдена.` });
-      return;
+  const user = req.user._id;
+  let owner;
+  Card.findById(cardId).then((card) => {
+    owner = card.owner._id;
+    if (owner === null) {
+      throw new BadRequestError('Вы не можете удалить эту карточку');
     }
-    res.status(statusCode.OK).send({ card });
+  }).catch(next);
+  try {
+    if (user === owner) {
+      Card.findByIdAndRemove(cardId).then((card) => {
+        if (card === null) {
+          throw new NotFoundError(`Карточка с указанным id:${cardId} не найдена.`);
+        }
+        res.status(statusCode.OK).send({ card });
+      });
+    }
   } catch (err) {
     if (err.name === 'CastError') {
-      res
-        .status(statusCode.BAD_REQUSET)
-        .send({ message: `Передан несуществующий ${cardId} карточки.` });
+      throw new BadRequestError(`Передан несуществующий id:${cardId} карточки.`);
     } else {
-      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+      next(err);
     }
   }
 };
 
-const createcard = async (req, res, next) => {
+// POST /cards/
+const createcard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   try {
-    const card = await Card.create({ name, link, owner });
-    res.status(statusCode.OK).send({ card });
+    Card.create({ name, link, owner }).then((card) => {
+      res.status(statusCode.OK).send({ card });
+    }).catch(next);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(statusCode.BAD_REQUSET).send({
-        message: `Переданы некорректные данные при создании карточки. ${err}`,
-      });
+      throw new BadRequestError(`Переданы некорректные данные при создании карточки. ${err}`);
     } else {
-      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+      next(err);
     }
   }
 };
 
-const likeCard = async (req, res, next) => {
+// PUT /cards/:cardId/likes
+const likeCard = (req, res, next) => {
   const { cardId } = req.params;
   try {
-    const card = await Card.findByIdAndUpdate(
+    Card.findByIdAndUpdate(
       cardId,
       { $addToSet: { likes: req.user._id } },
-    );
-    if (card === null) {
-      res.status(statusCode.NOT_FOUND).send({
-        message: 'Переданы некорректные данные для постановки лайка. ',
-      });
-      return;
-    }
-    res.status(statusCode.OK).send({ card });
+    ).then((card) => {
+      if (card === null) {
+        throw new NotFoundError('Переданы некорректные данные для постановки лайка. ');
+      }
+      res.status(statusCode.OK).send({ card });
+    });
   } catch (err) {
     if (err.name === 'CastError') {
-      res
-        .status(statusCode.BAD_REQUSET)
-        .send({ message: `Передан несуществующий ${cardId} карточки.` });
+      throw new BadRequestError(`Передан несуществующий id:${cardId} карточки.`);
     } else {
-      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+      next(err);
     }
   }
 };
 
-const dislikeCard = async (req, res, next) => {
+// DELETE /cards/:cardId/likes
+const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
   try {
-    const card = await Card.findByIdAndUpdate(
+    Card.findByIdAndUpdate(
       cardId,
       { $pull: { likes: req.user._id } },
       { new: true },
-    );
-    if (card === null) {
-      res.status(statusCode.NOT_FOUND).send({
-        message: 'Переданы некорректные данные для снятии лайка.',
-      });
-      return;
-    }
-    res.send({ card });
+    ).then((card) => {
+      if (card === null) {
+        throw new NotFoundError('Переданы некорректные данные для снятии лайка.');
+      }
+      res.status(statusCode.OK).send({ card });
+    });
   } catch (err) {
     if (err.name === 'CastError') {
-      res
-        .status(statusCode.BAD_REQUSET)
-        .send({ message: `Передан несуществующий ${cardId} карточки.` });
+      throw new BadRequestError(`Передан несуществующий id:${cardId} карточки.`);
     } else {
-      res.status(statusCode.SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+      next(err);
     }
   }
 };
