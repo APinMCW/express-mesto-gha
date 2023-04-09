@@ -7,6 +7,7 @@ const {
   likeCard,
   dislikeCard,
 } = require('../controllers/cards');
+const auth = require('../middlewares/auth');
 
 const validateCardId = celebrate({
   params: Joi.object().keys({
@@ -14,7 +15,7 @@ const validateCardId = celebrate({
   }),
 });
 
-router.get('/', getcards);
+router.get('/', auth, getcards);
 router.delete('/:cardId', validateCardId, delCard);
 router.post('/', celebrate({
   body: Joi.object().keys({
