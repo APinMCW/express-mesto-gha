@@ -4,9 +4,9 @@ const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/user');
 const statusCode = require('../const/statusCode');
 const { JWT_SECRET } = require('../config');
-const { BadRequestError } = require('../errors/bad-request-err');
-const { NotFoundError } = require('../errors/not-found-err');
-const { UnauthorizedError } = require('../errors/unauthorized-err');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 // GET /users/
 const getUsers = (req, res, next) => {
@@ -95,7 +95,7 @@ const updAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const id = req.user._id;
   try {
-    User.findByIdAndUpdate(id, { avatar }).then((user) => {
+    User.findByIdAndUpdate(id, { avatar }, { runValidators: true, new: true }).then((user) => {
       if (user === null) {
         throw new NotFoundError(`Пользователь по указанному id:${id} не найден`);
       }
@@ -114,7 +114,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    User.findOne({ email }).select('+password')
+    User.findOne({ email }, 'password')
       .orFail(new NotFoundError('Пользователь не найден'))
       .tnen((user) => bcrypt.compare(password, user.password).then((matched) => {
         if (matched) {
@@ -134,6 +134,7 @@ const login = (req, res, next) => {
     if (err.name === 'CastError') {
       throw new BadRequestError('Указан некорректный email');
     } else {
+      console.log(err);
       next(err);
     }
   }

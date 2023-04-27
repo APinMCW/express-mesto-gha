@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 const Card = require('../models/card');
 const statusCode = require('../const/statusCode');
-const { BadRequestError } = require('../errors/bad-request-err');
-const { NotFoundError } = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
 
 // GET /cards/
 const getcards = (req, res, next) => {
