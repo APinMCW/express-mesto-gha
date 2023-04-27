@@ -45,8 +45,9 @@ const createUser = (req, res, next) => {
       avatar,
       email,
       password: hash,
-    })).then((user) => res.status(statusCode.OK)
-      .send({ user }))
+    })).then((user) => user.set('password', undefined))
+      .then((user) => res.status(statusCode.OK)
+        .send({ user }))
       .catch((err) => {
         if (err.code === 11000) {
           res
@@ -113,7 +114,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    User.findOne({ email }, '+password')
+    User.findOne({ email }).select('+password')
       .orFail(new NotFoundError('Пользователь не найден'))
       .tnen((user) => bcrypt.compare(password, user.password).then((matched) => {
         if (matched) {
