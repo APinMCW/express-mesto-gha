@@ -10,6 +10,12 @@ const {
 const auth = require('../middlewares/auth');
 
 router.get('/', auth, getUsers);
+router.get('/me', celebrate({
+  headers: Joi.object().keys({
+    authorization: Joi.string().required(),
+  }),
+}), getUserInfo);
+
 router.get('/:id', celebrate({
   params: Joi.object().keys({
     id: Joi.string().alphanum().length(24),
@@ -22,12 +28,6 @@ router.patch('/me', celebrate({
     about: Joi.string().min(2).max(30),
   }),
 }), updProfile);
-
-router.get('/me', celebrate({
-  headers: Joi.object().keys({
-    authorization: Joi.string().required(),
-  }),
-}), getUserInfo);
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
