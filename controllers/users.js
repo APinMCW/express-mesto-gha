@@ -29,10 +29,10 @@ const getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         throw new BadRequestError('Указан некорректный id');
-      } else {
-        next(err);
       }
-    });
+      next(err);
+    })
+    .catch(next);
 };
 
 // POST /users/signup
@@ -58,10 +58,10 @@ const createUser = (req, res, next) => {
       }
       if (err.name === 'ValidationError') {
         throw new BadRequestError(`Переданы некорректные данные при создании пользователя ${err}`);
-      } else {
-        next(err);
       }
-    });
+      next(err);
+    })
+    .catch(next);
 };
 
 // PATCH /users/me
@@ -83,10 +83,10 @@ const updProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError(`Переданы некорректные данные при обновлении профиля. ${err}`);
-      } else {
-        next(err);
       }
-    });
+      next(err);
+    })
+    .catch(next);
 };
 
 // PATCH /users/me/avatar
@@ -104,17 +104,17 @@ const updAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError(`Переданы некорректные данные при обновлении аватара. ${err}`);
-      } else {
-        next(err);
       }
-    });
+      next(err);
+    })
+    .catch(next);
 };
 // POST /signin
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email }, 'password')
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(() => { throw new NotFoundError('Пользователь не найден'); })
     .then((user) => bcrypt.compare(password, user.password).then((matched) => {
       if (matched) {
         return user;
@@ -131,10 +131,10 @@ const login = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         throw new BadRequestError('Указан некорректный email');
-      } else {
-        next(err);
       }
-    });
+      next(err);
+    })
+    .catch(next);
 };
 
 // GET /users/me
