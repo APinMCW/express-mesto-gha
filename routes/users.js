@@ -8,31 +8,27 @@ const {
   getUserInfo,
 } = require('../controllers/users');
 const auth = require('../middlewares/auth');
+const { url } = require('../const/regex');
 
 router.get('/', auth, getUsers);
-router.get('/me', celebrate({
-  headers: Joi.object().keys({
-    authorization: Joi.string().required(),
-  }),
-}), getUserInfo);
-
+router.get('/me', getUserInfo);
 router.get('/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().alphanum().length(24),
+    id: Joi.string().hex().length(24).required(),
   }),
 }), getUserById);
 
 router.patch('/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
   }),
 }), updProfile);
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().required().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
+    avatar: Joi.string().required().regex(url),
   }),
 }), updAvatar);
 

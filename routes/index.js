@@ -1,6 +1,6 @@
 const { errors } = require('celebrate');
 const router = require('express').Router();
-const statusCode = require('../const/statusCode');
+const NotFoundError = require('../errors/not-found-err');
 
 const userRoutes = require('./users');
 const cardRoutes = require('./cards');
@@ -12,8 +12,8 @@ router.use('/users', userRoutes);
 
 router.use(errors());
 
-router.use((req, res) => {
-  res.status(statusCode.NOT_FOUND).send({ message: 'Страница по указанному маршруту не найдена' });
+router.use((next) => {
+  next(new NotFoundError('Страница по указанному маршруту не найдена'));
 });
 
 module.exports = router;

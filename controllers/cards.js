@@ -19,9 +19,6 @@ const delCard = (req, res, next) => {
   Card.findById(cardId)
     .then((card) => {
       owner = card.owner._id;
-      if (owner === null) {
-        throw new BadRequestError('Вы не можете удалить эту карточку');
-      }
     })
     .catch(next);
   if (user === owner) {
@@ -33,7 +30,7 @@ const delCard = (req, res, next) => {
         res.status(statusCode.OK).send({ card });
       })
       .catch((err) => {
-        if (err.name === 'CastError') {
+        if (err instanceof Error.CastError) {
           throw new BadRequestError(`Передан несуществующий id:${cardId} карточки.`);
         } else {
           next(err);
@@ -48,10 +45,10 @@ const createcard = (req, res, next) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => {
-      res.status(statusCode.OK).send({ card });
+      res.status(statusCode.CREATED).send({ card });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof Error.ValidationError) {
         throw new BadRequestError(`Переданы некорректные данные при создании карточки. ${err}`);
       } else {
         next(err);
@@ -65,6 +62,7 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } },
+    { new: true },
   )
     .then((card) => {
       if (card === null) {
@@ -73,7 +71,7 @@ const likeCard = (req, res, next) => {
       res.status(statusCode.OK).send({ card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof Error.CastError) {
         throw new BadRequestError(`Передан несуществующий id:${cardId} карточки.`);
       } else {
         next(err);
@@ -96,7 +94,7 @@ const dislikeCard = (req, res, next) => {
       res.status(statusCode.OK).send({ card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof Error.CastError) {
         throw new BadRequestError(`Передан несуществующий id:${cardId} карточки.`);
       } else {
         next(err);

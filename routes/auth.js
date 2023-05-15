@@ -4,6 +4,7 @@ const {
   createUser,
   login,
 } = require('../controllers/users');
+const { url } = require('../const/regex');
 
 router.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -12,7 +13,7 @@ router.post('/signup', celebrate({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(2).max(30),
     // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/),
+    avatar: Joi.string().regex(url),
   }),
 }), createUser);
 router.post('/signin', celebrate({
