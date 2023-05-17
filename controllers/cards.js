@@ -40,10 +40,10 @@ const delCard = (req, res, next) => {
   const user = req.user._id;
   Card.findById(cardId)
     .then((card) => {
-      const owner = card.owner.toString();
       if (card === null) {
         throw new NotFoundError(`Карточка с указанным id:${cardId} не найдена.`);
       }
+      const owner = card.owner.toString();
       if (user === owner) {
         Card.findByIdAndRemove(cardId)
           .then((copy) => {
