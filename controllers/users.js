@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
+const Error = require('mongoose');
 const User = require('../models/user');
 const statusCode = require('../const/statusCode');
 const { JWT_SECRET } = require('../config');

@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+const Error = require('mongoose');
 const Card = require('../models/card');
 const statusCode = require('../const/statusCode');
 const BadRequestError = require('../errors/bad-request-err');
