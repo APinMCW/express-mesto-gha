@@ -4,6 +4,7 @@ const Card = require('../models/card');
 const statusCode = require('../const/statusCode');
 const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
+const MethodNotAllowedError = require('../errors/method-not-allowed-err');
 
 function updateDataCard(req, res, next, cardId, data) {
   Card.findByIdAndUpdate(
@@ -37,10 +38,9 @@ const getcards = (req, res, next) => {
 const delCard = (req, res, next) => {
   const { cardId } = req.params;
   const user = req.user._id;
-  let owner;
   Card.findById(cardId)
     .then((card) => {
-      owner = card.owner._id;
+      const owner = card.owner.toString();
       if (user === owner) {
         Card.findByIdAndRemove(cardId)
           .then((copy) => {
@@ -56,6 +56,8 @@ const delCard = (req, res, next) => {
               next(err);
             }
           });
+      } else {
+        throw new MethodNotAllowedError('Нет прав доступа');
       }
     })
     .catch((err) => {
