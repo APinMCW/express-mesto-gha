@@ -4,7 +4,7 @@ const Card = require('../models/card');
 const statusCode = require('../const/statusCode');
 const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
-const MethodNotAllowedError = require('../errors/method-not-allowed-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 function updateDataCard(req, res, next, cardId, data) {
   Card.findByIdAndUpdate(
@@ -41,6 +41,9 @@ const delCard = (req, res, next) => {
   Card.findById(cardId)
     .then((card) => {
       const owner = card.owner.toString();
+      if (card === null) {
+        throw new NotFoundError(`Карточка с указанным id:${cardId} не найдена.`);
+      }
       if (user === owner) {
         Card.findByIdAndRemove(cardId)
           .then((copy) => {
@@ -57,7 +60,7 @@ const delCard = (req, res, next) => {
             }
           });
       } else {
-        throw new MethodNotAllowedError('Нет прав доступа');
+        throw new ForbiddenError('Нет прав доступа');
       }
     })
     .catch((err) => {
