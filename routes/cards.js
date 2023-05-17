@@ -17,14 +17,14 @@ const validateCardId = celebrate({
 });
 
 router.get('/', auth, getcards);
-router.delete('/:cardId', validateCardId, delCard);
+router.delete('/:cardId', validateCardId, auth, delCard);
 router.post('/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    link: Joi.string().regex(url),
+    name: Joi.string().min(2).max(30).required(),
+    link: Joi.string().regex(url).required(),
   }),
-}), createcard);
-router.put('/:cardId/likes', validateCardId, likeCard);
-router.delete('/:cardId/likes', validateCardId, dislikeCard);
+}), auth, createcard);
+router.put('/:cardId/likes', validateCardId, auth, likeCard);
+router.delete('/:cardId/likes', validateCardId, auth, dislikeCard);
 
 module.exports = router;

@@ -12,7 +12,7 @@ const ConflictError = require('../errors/conflict-err');
 function findAndUpdate(req, res, next, id, update) {
   User.findByIdAndUpdate(
     id,
-    { update },
+    update,
     { runValidators: true, new: true },
   )
     .then((user) => {
@@ -24,6 +24,8 @@ function findAndUpdate(req, res, next, id, update) {
     .catch((err) => {
       if (err instanceof Error.ValidationError) {
         next(new BadRequestError(`Переданы некорректные данные при обновлении профиля. ${err}`));
+      } else {
+        next(err);
       }
     });
 }
@@ -39,6 +41,8 @@ function findUser(req, res, next, id) {
     .catch((err) => {
       if (err instanceof Error.CastError) {
         next(new BadRequestError('Указан некорректный id'));
+      } else {
+        next(err);
       }
     });
 }
@@ -74,9 +78,10 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с такими данными уже существует'));
-      }
-      if (err instanceof Error.ValidationError) {
+      } else if (err instanceof Error.ValidationError) {
         next(new BadRequestError(`Переданы некорректные данные при создании пользователя ${err}`));
+      } else {
+        next(err);
       }
     });
 };
@@ -84,7 +89,7 @@ const createUser = (req, res, next) => {
 // PATCH /users/me
 const updProfile = (req, res, next) => {
   const { name, about } = req.body;
-  const id = req.payload._id;
+  const id = req.user._id;
 
   findAndUpdate(req, res, next, id, { name, about });
 };
@@ -92,7 +97,7 @@ const updProfile = (req, res, next) => {
 // PATCH /users/me/avatar
 const updAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  const id = req.payload._id;
+  const id = req.user._id;
 
   findAndUpdate(req, res, next, id, { avatar });
 };
@@ -110,27 +115,17 @@ const login = (req, res, next) => {
       // eslint-disable-next-line no-shadow
     }))
     .then((user) => {
-      const jwt = jsonwebtoken.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jsonwebtoken.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: '7d',
       });
-      res.status(statusCode.OK).send({ _id: user._id, jwt });
+      res.status(statusCode.OK).send({ _id: user._id, token });
     })
     .catch(next);
 };
 
 // GET /users/me
 const getUserInfo = (req, res, next) => {
-  const { authorization } = req.headers;
-
-  let payload;
-  const jwt = authorization.replace('Bearer ', '');
-  try {
-    payload = jsonwebtoken.verify(jwt, JWT_SECRET);
-  } catch (err) {
-    throw new UnauthorizedError('Пользователь не найден');
-  }
-
-  findUser(req, res, next, payload._id);
+  findUser(req, res, next, req.user._id);
 };
 
 module.exports = {
