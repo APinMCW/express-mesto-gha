@@ -75,7 +75,7 @@ const delCard = (req, res, next) => {
 // POST /cards/
 const createcard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
+  const owner = req.user;
   Card.create({ name, link, owner })
     .then((card) => {
       res.status(statusCode.CREATED).send(card);
