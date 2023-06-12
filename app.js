@@ -16,12 +16,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 
 app.use(express.json());
 app.use(cors({
-  origin: [
-    'https://learning-mesto.nomoredomains.rocks',
-    'http://learning-mesto.nomoredomains.rocks',
-    'http://localhost:3000',
-    'http://158.160.102.19:3000',
-  ],
+  // origin: [
+  //   'https://learning-mesto.nomoredomains.rocks',
+  //   'http://learning-mesto.nomoredomains.rocks',
+  //   'http://localhost:3000',
+  //   'http://158.160.102.19:3000',
+  // ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
