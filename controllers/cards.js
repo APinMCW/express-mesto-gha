@@ -16,7 +16,7 @@ function updateDataCard(req, res, next, cardId, data) {
       if (card === null) {
         throw new NotFoundError('Переданы некорректные данные для постановки лайка. ');
       }
-      res.status(statusCode.OK).send({ card });
+      res.status(statusCode.OK).send(card);
     })
     .catch((err) => {
       if (err instanceof Error.CastError) {
@@ -50,7 +50,7 @@ const delCard = (req, res, next) => {
             if (copy === null) {
               throw new NotFoundError(`Карточка с указанным id:${cardId} не найдена.`);
             }
-            res.status(statusCode.OK).send({ copy });
+            res.status(statusCode.OK).send(copy);
           })
           .catch((err) => {
             if (err instanceof Error.CastError) {
@@ -78,7 +78,7 @@ const createcard = (req, res, next) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => {
-      res.status(statusCode.CREATED).send({ card });
+      res.status(statusCode.CREATED).send(card);
     })
     .catch((err) => {
       if (err instanceof Error.ValidationError) {

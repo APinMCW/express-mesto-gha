@@ -20,7 +20,7 @@ function findAndUpdate(req, res, next, id, update) {
       if (user === null) {
         throw new NotFoundError(`Пользователь по указанному id:${id} не найден`);
       }
-      res.status(statusCode.OK).send({ user });
+      res.status(statusCode.OK).send(user);
     })
     .catch((err) => {
       if (err instanceof Error.ValidationError) {
@@ -37,7 +37,7 @@ function findUser(req, res, next, id) {
       if (user === null) {
         throw new NotFoundError(`Пользователь по указанному id:${id} не найден`);
       }
-      res.status(statusCode.OK).send({ user });
+      res.status(statusCode.OK).send(user);
     })
     .catch((err) => {
       if (err instanceof Error.CastError) {
@@ -50,7 +50,7 @@ function findUser(req, res, next, id) {
 // GET /users/
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(statusCode.OK).send({ users }))
+    .then((users) => res.status(statusCode.OK).send(users))
     .catch(next);
 };
 
@@ -75,7 +75,7 @@ const createUser = (req, res, next) => {
     password: hash,
   }))
     .then((user) => user.set('password', undefined))
-    .then((user) => res.status(statusCode.OK).send({ user }))
+    .then((user) => res.status(statusCode.OK).send(user))
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с такими данными уже существует'));
