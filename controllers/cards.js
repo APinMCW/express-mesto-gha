@@ -30,7 +30,7 @@ function updateDataCard(req, res, next, cardId, data) {
 // GET /cards/
 const getcards = (req, res, next) => {
   Card.find({}).then((cards) => {
-    res.status(statusCode.OK).send(cards);
+    res.status(statusCode.OK).send(cards.reverse());
   }).catch(next);
 };
 
@@ -75,7 +75,7 @@ const delCard = (req, res, next) => {
 // POST /cards/
 const createcard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user;
+  const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => {
       res.status(statusCode.CREATED).send(card);
