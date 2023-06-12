@@ -30,7 +30,7 @@ function updateDataCard(req, res, next, cardId, data) {
 // GET /cards/
 const getcards = (req, res, next) => {
   Card.find({}).then((cards) => {
-    res.status(statusCode.OK).send({ cards });
+    res.status(statusCode.OK).send(cards);
   }).catch(next);
 };
 
