@@ -75,7 +75,7 @@ const createUser = (req, res, next) => {
     password: hash,
   }))
     .then((user) => user.set('password', undefined))
-    .then((user) => res.status(statusCode.OK).send(user))
+    .then((user) => res.status(statusCode.CREATED).send(user))
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('Пользователь с такими данными уже существует'));
