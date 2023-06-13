@@ -1,9 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const routes = require('./routes/index');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const routes = require('./routes/index');
 // Слушаем 3000 порт
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const errorHandler = require('./middlewares/error-handler');
@@ -12,7 +12,7 @@ const { requestLogger, errorLogger } = require('./middlewares/Logger');
 const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // за 15 минут
-  max: 100 // можно совершить максимум 100 запросов с одного IP
+  max: 100, // можно совершить максимум 100 запросов с одного IP
 });
 app.use(helmet());
 
